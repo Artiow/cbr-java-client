@@ -6,7 +6,7 @@
 
     <groupId>com.artiow</groupId>
     <artifactId>cbr-java-client-spring-impl</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
