@@ -3,35 +3,48 @@ package com.artiow.cbr.api.model.mapper;
 import com.artiow.cbr.api.model.CentralBankRate;
 import com.artiow.cbr.api.model.schema.ValCurs;
 import com.artiow.cbr.api.model.schema.Valute;
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
+import lombok.val;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-@Mapper
-public abstract class CentralBankMapper {
+import static java.util.Objects.isNull;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
-    public static CentralBankMapper instance() {
-        return Mappers.getMapper(CentralBankMapper.class);
+public class CentralBankMapper {
+
+    public List<CentralBankRate> map(ValCurs valCurs) {
+        return ofNullable(valCurs)
+                .map(ValCurs::getValuteList)
+                .map(List::stream)
+                .map(stream -> stream.map(this::map))
+                .map(stream -> stream.collect(toList()))
+                .orElse(null);
+    }
+
+    private CentralBankRate map(Valute valute) {
+        val result = new CentralBankRate();
+        result.setId(valute.getId());
+        result.setNumCode(parseInteger(valute.getNumCode()));
+        result.setCharCode(valute.getCharCode());
+        result.setName(valute.getName());
+        result.setNominal(parseBigDecimal(valute.getNominal()));
+        result.setValue(parseBigDecimal(valute.getValue()));
+        return result;
     }
 
 
-    public List<CentralBankRate> map(ValCurs valCurs) {
-        if (valCurs == null) {
+    private Integer parseInteger(String value) {
+        if (isNull(value)) {
             return null;
         }
 
-        return map(valCurs.getValuteList());
+        return new Integer(value);
     }
 
-    protected abstract List<CentralBankRate> map(List<Valute> valuteList);
-
-    protected abstract CentralBankRate map(Valute valute);
-
-
-    protected BigDecimal parse(String value) {
-        if (value == null) {
+    private BigDecimal parseBigDecimal(String value) {
+        if (isNull(value)) {
             return null;
         }
 
